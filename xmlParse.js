@@ -19,7 +19,13 @@ function xmlParse(path, callback){
 
 function main() {
 	//console.log(str);
-	str = str.replace(/[[\]]/g,'').toString();
+	str = str.replace(/"]/g, '\"').toString();
+	str = str.replace(/\["/g, '\"').toString();
+	// str = str.replace('\"]', '').toString();
+	str = str.replace(/\[/g, '{').toString();
+	str = str.replace(/]/g, '}').toString();
+	// str = str.replace(']','}');
+	//str = str.replace(/[[\]]/g,'').toString();
 	fs.writeFile('myfile.json', str);
 	//console.log(str);
 }
