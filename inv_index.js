@@ -53,7 +53,7 @@ var findID = function(db, callback) {
 				//console.log(inv_query);
 				inv_insert(doc);
 			} else {
-				fwd_insert(doc);
+				fwd_insert(doc, db);
 			}
 			
 
@@ -87,7 +87,7 @@ var parent_nodes = [];
 var next_keys;
 var next_next_keys;
 
-function fwd_insert(doc) {
+function fwd_insert(doc, db) {
 
 	var keys = Object.keys(doc);
 	
@@ -99,197 +99,197 @@ function fwd_insert(doc) {
 			
 
 
-			for (var i = 0; i < keys.length; i++) {
-				var values = doc[keys[i]];
-				//console.log("all keys: " + keys[i]);
+		for (var i = 0; i < keys.length; i++) {
+			var values = doc[keys[i]];
+			//console.log("all keys: " + keys[i]);
 
-				if (!isNaN(keys[i])) {
-					var fwd = {};
-					var nodes = {};
-					console.log(">>>>>>>>>>> id: " + keys[i]);
-					nodes["node_id"]=keys[i];
-					nodes_ids.push(nodes);
-					if (keys.length == 1) {
-						if (root == undefined) {
-							root = keys[i];
-							//fwd["parent"]="NULL";
-							parent_nodes.push(root);
-							var root_value = Object.keys(values);
-							children = Object.keys(values[root_value]);
-							console.log("root: " + root);
-							console.log("parent: NULL");
-							console.log("children: " + children);
-							fwd["root"]=root;
-							fwd["parent"]=null;
-							fwd["children"]=children;
-							fwd_query.push(fwd);
-						} else {
-							next_keys = Object.keys(values);
-							next_next_keys = Object.keys(values[next_keys]);
-							//console.log("index " + i + ": " + next_next_keys);
-							//console.log("length: " + next_next_keys.length);
-						
-							if (next_next_keys.length >= 0) {
-								//parent = keys[i];
-								//console.log(next_next_keys.length);
-								if (!isNaN(next_next_keys[0]) && next_next_keys[0] != 0) {
-									//parent = keys[i];
-									parent = parent_nodes[parent_nodes.length-1];
-									children = next_next_keys;
-									console.log("root: " + root);
-									console.log("parent: " + parent);
-									console.log("children: " + children);
-									fwd["root"]=root;
-									fwd["parent"]=parent;
-									fwd["children"]=children;
-									fwd_query.push(fwd);
-									parent_nodes.push(keys[i]);
-									
-								} else {	// it is a leaf
-								//parent = keys[i];
-									if (i == keys.length-1) {
-										parent = parent_nodes[parent_nodes.length-1];
-										console.log("root: " + root);
-										console.log("parent: " + parent);
-										console.log("children: NULL");
-										fwd["root"]=root;
-										fwd["parent"]=parent;
-										fwd["children"]=null;
-										fwd_query.push(fwd);
-										parent_nodes.pop(parent_nodes[parent_nodes.length-1]);
-									} else {
-										parent = parent_nodes[parent_nodes.length-1];
-										console.log("root: " + root);
-										console.log("parent: " + parent);
-										console.log("children: NULL");
-										fwd["root"]=root;
-										fwd["parent"]=parent;
-										fwd["children"]=null;
-										fwd_query.push(fwd);
-									}
-									
-								}
-								//console.log(values);
+			if (!isNaN(keys[i])) {
+				var fwd = {};
+				var nodes = {};
+				//console.log(">>>>>>>>>>> id: " + keys[i]);
+				nodes["node_id"]=keys[i];
+				nodes_ids.push(nodes);
+				if (keys.length == 1) {
+					if (root == undefined) {
+						root = keys[i];
+						//fwd["parent"]="NULL";
+						parent_nodes.push(root);
+						var root_value = Object.keys(values);
+						children = Object.keys(values[root_value]);
+						// console.log("root: " + root);
+						// console.log("parent: NULL");
+						// console.log("children: " + children);
+						fwd["root"]=root;
+						fwd["parent"]=null;
+						fwd["children"]=children;
+						fwd_query.push(fwd);
+						db.collection('node').update(nodes, {$set: fwd}, function (err) {
+							if (err) {
+								console.log("fwd_insert error: " + err);
+							} else {
+								console.log("inserted5 node");
 							}
-						}
-
-						//console.log("all keys in for loop: " + keys);
-						//console.log("key: " + keys[i]);
+						});
 					} else {
-						//console.log("keys.length > 1");
-						//console.log("key: " + keys[i]);
-						//parent = keys[i];
-						
 						next_keys = Object.keys(values);
 						next_next_keys = Object.keys(values[next_keys]);
 						//console.log("index " + i + ": " + next_next_keys);
 						//console.log("length: " + next_next_keys.length);
-						
-							if (next_next_keys.length >= 0) {
+					
+						if (next_next_keys.length >= 0) {
+							//parent = keys[i];
+							//console.log(next_next_keys.length);
+							if (!isNaN(next_next_keys[0]) && next_next_keys[0] != 0) {
 								//parent = keys[i];
-								//console.log(next_next_keys.length);
-								if (!isNaN(next_next_keys[0]) && next_next_keys[0] != 0) {
-									//parent = keys[i];
+								parent = parent_nodes[parent_nodes.length-1];
+								children = next_next_keys;
+								// console.log("root: " + root);
+								// console.log("parent: " + parent);
+								// console.log("children: " + children);
+								fwd["root"]=root;
+								fwd["parent"]=parent;
+								fwd["children"]=children;
+								fwd_query.push(fwd);
+								db.collection('node').update(nodes, {$set: fwd}, function (err) {
+									if (err) {
+										console.log("fwd_insert error: " + err);
+									} else {
+										console.log("inserted5 node");
+									}
+								});
+								parent_nodes.push(keys[i]);
+								
+							} else {	// it is a leaf
+							//parent = keys[i];
+								if (i == keys.length-1) {
 									parent = parent_nodes[parent_nodes.length-1];
-									children = next_next_keys;
-									console.log("root: " + root);
-									console.log("parent: " + parent);
-									console.log("children: " + children);
+									// console.log("root: " + root);
+									// console.log("parent: " + parent);
+									// console.log("children: NULL");
 									fwd["root"]=root;
 									fwd["parent"]=parent;
-									fwd["children"]=children;
+									fwd["children"]=null;
 									fwd_query.push(fwd);
-									parent_nodes.push(keys[i]);
-									
-								} else {	// it is a leaf
-								//parent = keys[i];
-									if (i == keys.length-1) {
-										parent = parent_nodes[parent_nodes.length-1];
-										console.log("root: " + root);
-										console.log("parent: " + parent);
-										console.log("children: NULL");
-										fwd["root"]=root;
-										fwd["parent"]=parent;
-										fwd["children"]=null;
-										fwd_query.push(fwd);
-										parent_nodes.pop(parent_nodes[parent_nodes.length-1]);
-									} else {
-										parent = parent_nodes[parent_nodes.length-1];
-										console.log("root: " + root);
-										console.log("parent: " + parent);
-										console.log("children: NULL");
-										fwd["root"]=root;
-										fwd["parent"]=parent;
-										fwd["children"]=null;
-										fwd_query.push(fwd);
-									}
-									
+									db.collection('node').update(nodes, {$set: fwd}, function (err) {
+										if (err) {
+											console.log("fwd_insert error: " + err);
+										} else {
+											console.log("inserted5 node");
+										}
+									});
+									parent_nodes.pop(parent_nodes[parent_nodes.length-1]);
+								} else {
+									parent = parent_nodes[parent_nodes.length-1];
+									// console.log("root: " + root);
+									// console.log("parent: " + parent);
+									// console.log("children: NULL");
+									fwd["root"]=root;
+									fwd["parent"]=parent;
+									fwd["children"]=null;
+									fwd_query.push(fwd);
+									db.collection('node').update(nodes, {$set: fwd}, function (err) {
+										if (err) {
+											console.log("fwd_insert error: " + err);
+										} else {
+											console.log("inserted5 node");
+										}
+									});
 								}
-								//console.log(values);
+								
 							}
-						
-
+							//console.log(values);
+						}
 					}
 
-				}
-
-				//console.log(keys_values);
-				fwd_insert(values);
-
-				
-			}
-
-		//}
-		
-		
-		/*for (var i = 0; i<keys.length; i++) {	// for each key
-		
-			//console.log("keys: " + keys[i]);
-			var values = doc[keys[i]];
-			//console.log("values: " + values);
-			if (!isNaN(keys[i])) {
-				var fwd = {};
-				if (keys.length == 1) {
-					if (prev_key == undefined) {
-						prev_key = keys[i];
-						root = keys[i];
-						console.log("root: " + root);
-					} else {
-						new_key = keys[i];
-						//console.log(keys[i]);
-						//console.log(prev_key + " : " + new_key);
-						fwd["source"]=prev_key;
-						fwd["destination"]=new_key;
-						//console.log(fwd);
-						fwd_query.push(fwd);
-						prev_key = new_key;
-					}
-					//prev_key=keys[i];
-
-				} else if (keys.length > 1) {
-					new_key = keys[i];
-					//console.log(prev_key + " : " + new_key);
-					fwd["source"]=prev_key;
-					fwd["destination"]=new_key;
-					fwd_query.push(fwd);
-					console.log("keys.length > 1: " + keys.length);
-					//console.log(fwd_query);
-					prev_key = new_key;
+					//console.log("all keys in for loop: " + keys);
+					//console.log("key: " + keys[i]);
 				} else {
-					//console.log(prev_key + " : " + keys[i]);
-					fwd["source"]=prev_key;
-					fwd["destination"]=keys[i];
-					fwd_query.push(fwd);
+					//console.log("keys.length > 1");
+					//console.log("key: " + keys[i]);
+					//parent = keys[i];
+					
+					next_keys = Object.keys(values);
+					next_next_keys = Object.keys(values[next_keys]);
+					//console.log("index " + i + ": " + next_next_keys);
+					//console.log("length: " + next_next_keys.length);
+					
+					if (next_next_keys.length >= 0) {
+						//parent = keys[i];
+						//console.log(next_next_keys.length);
+						if (!isNaN(next_next_keys[0]) && next_next_keys[0] != 0) {
+							//parent = keys[i];
+							parent = parent_nodes[parent_nodes.length-1];
+							children = next_next_keys;
+							// console.log("root: " + root);
+							// console.log("parent: " + parent);
+							// console.log("children: " + children);
+							fwd["root"]=root;
+							fwd["parent"]=parent;
+							fwd["children"]=children;
 
-					//console.log(fwd_query);
+							fwd_query.push(fwd);
+							db.collection('node').update(nodes, {$set: fwd}, function (err) {
+								if (err) {
+									console.log("fwd_insert error: " + err);
+								} else {
+									console.log("inserted5 node");
+								}
+							});
+							parent_nodes.push(keys[i]);
+							
+						} else {	// it is a leaf
+						//parent = keys[i];
+							if (i == keys.length-1) {
+								parent = parent_nodes[parent_nodes.length-1];
+								// console.log("root: " + root);
+								// console.log("parent: " + parent);
+								// console.log("children: NULL");
+								fwd["root"]=root;
+								fwd["parent"]=parent;
+								fwd["children"]=null;
+								fwd_query.push(fwd);
+								db.collection('node').update(nodes, {$set: fwd}, function (err) {
+									if (err) {
+										console.log("fwd_insert error: " + err);
+									} else {
+										console.log("inserted5 node");
+									}
+								});
+								parent_nodes.pop(parent_nodes[parent_nodes.length-1]);
+							} else {
+								parent = parent_nodes[parent_nodes.length-1];
+								// console.log("root: " + root);
+								// console.log("parent: " + parent);
+								// console.log("children: NULL");
+								fwd["root"]=root;
+								fwd["parent"]=parent;
+								fwd["children"]=null;
+								fwd_query.push(fwd);
+								db.collection('node').update(nodes, {$set: fwd}, function (err) {
+									if (err) {
+										console.log("fwd_insert error: " + err);
+									} else {
+										console.log("inserted5 node");
+									}
+								});
+							}
+							
+						}
+						//console.log(values);
+					}
+					
+
 				}
-				
-				// console.log("keys: " + keys[i]);
-			}
-			
-			fwd_insert(values);
 
-		}*/
+			}
+
+			//console.log(keys_values);
+			fwd_insert(values,db);
+
+			
+		}
+		
+
 	}
 }
 
@@ -388,7 +388,7 @@ function inv_insert(doc) {
 					}
 					
 					
-					console.log("inserted " + values[j] + " : " + id);
+					// console.log("inserted " + values[j] + " : " + id);
 				}
 			} else {
 				if (values.length == 1 || (values.length > 1 && typeOf(values) == "string")) {
@@ -402,7 +402,7 @@ function inv_insert(doc) {
 								} else {
 									inv_query[new_values[j].toString()] = [id];
 								}
-								console.log("inserted2 " + new_values[j] + " : " + id);
+								// console.log("inserted2 " + new_values[j] + " : " + id);
 							}
 						}
 					} else {
@@ -412,7 +412,7 @@ function inv_insert(doc) {
 							} else {
 								inv_query[values.toString()] = [id];
 							}
-							console.log("inserted1 " + values + " : " + id);
+							// console.log("inserted1 " + values + " : " + id);
 						}
 					}
 
@@ -445,20 +445,20 @@ MongoClient.connect(uri, function(err, db) {
 			}
 			db.close();
 		});*/
-		for (var i = 0; i < fwd_query.length; i++) {
-			var element = fwd_query[i];
-			var node_element = nodes_ids[i];
-			console.log(element);
-			db.collection('node').update(node_element, {$set: element}, function (err) {
-				//console.log("in update");
-				if (err) {
-					console.log("update error: " + err);
-				} else {
-					console.log("inserted node");
-				}
-				//db.close();
-			});
-		}
+		// for (var i = 0; i < fwd_query.length; i++) {
+		// 	var element = fwd_query[i];
+		// 	var node_element = nodes_ids[i];
+		// 	//console.log(element);
+		// 	db.collection('node').update(node_element, {$set: element}, function (err) {
+		// 		//console.log("in update");
+		// 		if (err) {
+		// 			console.log("update error: " + err);
+		// 		} else {
+		// 			console.log("inserted node");
+		// 		}
+		// 		//db.close();
+		// 	});
+		// }
 		//db.close();
 	});
 });
@@ -479,14 +479,14 @@ MongoClient.connect(uri, function(err, db) {
 		// CLOSES BEFORE FORWARD INDEX CAN HAPPEN.
 		//console.log(inv_query);
 		
-		console.log(inv_index);
+		//console.log(inv_index);
 		db.collection('InvertedIndex').insert(inv_index, function(err) {
 			if (err) {
 				console.log("inverted index error: " + err);
 			} else {
 				console.log(" in InvertedIndex");
 			}
-			//db.close();
+			db.close();
 		});
 		// console.log("inserted InvertedIndex");
 
