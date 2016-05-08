@@ -19,7 +19,9 @@ function xmlParse(path, callback){
 
 function main() {
 	//console.log(str);
+	str = str.replace(/[[\]]/g,'').toString();
 	fs.writeFile('myfile.json', str);
+	//console.log(str);
 }
 
 xmlParse(filepath, main);	// xml parser
