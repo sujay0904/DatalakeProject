@@ -20,6 +20,14 @@ for (var i = 0; i < words.length; i++) {
 	stop_words.add(words[i]);
 }
 var insert_flag;
+
+var removeInv = function(db, callback) {
+	db.collection('InvertedIndex').deleteMany({}, function(err, results) {
+		//console.log(results);
+		callback();
+	});
+}
+
 var findID = function(db, callback) {
 	//var id_str = id.toString();
 
@@ -119,7 +127,7 @@ function fwd_insert(doc, db) {
 						// console.log("root: " + root);
 						// console.log("parent: NULL");
 						// console.log("children: " + children);
-						fwd["root"]=root;
+						//fwd["root"]=root;
 						fwd["parent"]=null;
 						fwd["children"]=children;
 						fwd_query.push(fwd);
@@ -127,7 +135,7 @@ function fwd_insert(doc, db) {
 							if (err) {
 								console.log("fwd_insert error: " + err);
 							} else {
-								console.log("inserted5 node");
+								//console.log("inserted5 node");
 							}
 						});
 					} else {
@@ -146,7 +154,7 @@ function fwd_insert(doc, db) {
 								// console.log("root: " + root);
 								// console.log("parent: " + parent);
 								// console.log("children: " + children);
-								fwd["root"]=root;
+								//fwd["root"]=root;
 								fwd["parent"]=parent;
 								fwd["children"]=children;
 								fwd_query.push(fwd);
@@ -154,7 +162,7 @@ function fwd_insert(doc, db) {
 									if (err) {
 										console.log("fwd_insert error: " + err);
 									} else {
-										console.log("inserted5 node");
+										//console.log("inserted5 node");
 									}
 								});
 								parent_nodes.push(keys[i]);
@@ -166,7 +174,7 @@ function fwd_insert(doc, db) {
 									// console.log("root: " + root);
 									// console.log("parent: " + parent);
 									// console.log("children: NULL");
-									fwd["root"]=root;
+									//fwd["root"]=root;
 									fwd["parent"]=parent;
 									fwd["children"]=null;
 									fwd_query.push(fwd);
@@ -174,7 +182,7 @@ function fwd_insert(doc, db) {
 										if (err) {
 											console.log("fwd_insert error: " + err);
 										} else {
-											console.log("inserted5 node");
+											//console.log("inserted5 node");
 										}
 									});
 									parent_nodes.pop(parent_nodes[parent_nodes.length-1]);
@@ -183,7 +191,7 @@ function fwd_insert(doc, db) {
 									// console.log("root: " + root);
 									// console.log("parent: " + parent);
 									// console.log("children: NULL");
-									fwd["root"]=root;
+									//fwd["root"]=root;
 									fwd["parent"]=parent;
 									fwd["children"]=null;
 									fwd_query.push(fwd);
@@ -191,7 +199,7 @@ function fwd_insert(doc, db) {
 										if (err) {
 											console.log("fwd_insert error: " + err);
 										} else {
-											console.log("inserted5 node");
+											//console.log("inserted5 node");
 										}
 									});
 								}
@@ -223,7 +231,7 @@ function fwd_insert(doc, db) {
 							// console.log("root: " + root);
 							// console.log("parent: " + parent);
 							// console.log("children: " + children);
-							fwd["root"]=root;
+							//fwd["root"]=root;
 							fwd["parent"]=parent;
 							fwd["children"]=children;
 
@@ -232,7 +240,7 @@ function fwd_insert(doc, db) {
 								if (err) {
 									console.log("fwd_insert error: " + err);
 								} else {
-									console.log("inserted5 node");
+									//console.log("inserted5 node");
 								}
 							});
 							parent_nodes.push(keys[i]);
@@ -244,7 +252,7 @@ function fwd_insert(doc, db) {
 								// console.log("root: " + root);
 								// console.log("parent: " + parent);
 								// console.log("children: NULL");
-								fwd["root"]=root;
+								//fwd["root"]=root;
 								fwd["parent"]=parent;
 								fwd["children"]=null;
 								fwd_query.push(fwd);
@@ -252,7 +260,7 @@ function fwd_insert(doc, db) {
 									if (err) {
 										console.log("fwd_insert error: " + err);
 									} else {
-										console.log("inserted5 node");
+										//console.log("inserted5 node");
 									}
 								});
 								parent_nodes.pop(parent_nodes[parent_nodes.length-1]);
@@ -261,7 +269,7 @@ function fwd_insert(doc, db) {
 								// console.log("root: " + root);
 								// console.log("parent: " + parent);
 								// console.log("children: NULL");
-								fwd["root"]=root;
+								//fwd["root"]=root;
 								fwd["parent"]=parent;
 								fwd["children"]=null;
 								fwd_query.push(fwd);
@@ -269,7 +277,7 @@ function fwd_insert(doc, db) {
 									if (err) {
 										console.log("fwd_insert error: " + err);
 									} else {
-										console.log("inserted5 node");
+										//console.log("inserted5 node");
 									}
 								});
 							}
@@ -288,7 +296,7 @@ function fwd_insert(doc, db) {
 
 			
 		}
-		
+
 
 	}
 }
@@ -429,6 +437,12 @@ function inv_insert(doc) {
 
 	}
 }
+MongoClient.connect(uri, function(err, db) {
+	assert.equal(null, err);
+	removeInv(db, function() {
+
+	});
+});
 
 // to insert into forward index
 MongoClient.connect(uri, function(err, db) {
@@ -479,14 +493,14 @@ MongoClient.connect(uri, function(err, db) {
 		// CLOSES BEFORE FORWARD INDEX CAN HAPPEN.
 		//console.log(inv_query);
 		
-		//console.log(inv_index);
+		console.log(inv_index);
 		db.collection('InvertedIndex').insert(inv_index, function(err) {
 			if (err) {
 				console.log("inverted index error: " + err);
 			} else {
 				console.log(" in InvertedIndex");
 			}
-			db.close();
+			//db.close();
 		});
 		// console.log("inserted InvertedIndex");
 

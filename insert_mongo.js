@@ -2,7 +2,7 @@ var fs = require('fs');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
-var filepath = 'C:/Users/Owner/Desktop/cis550-project/test4.json';
+var filepath = 'C:/Users/Owner/Desktop/cis550-project/new.json';
 var filename = filepath.replace(/^.*[\\\/]/, '').toString();
 var file_ext3 = filename.substr(filename.length - 4);
 var file_ext4 = filename.substr(filename.length - 5);
